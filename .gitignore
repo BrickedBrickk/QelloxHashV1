@@ -1,0 +1,39 @@
+# Build artifacts
+/target/
+**/target/
+*.pdb
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Distribution binaries
+/dist/
+
+# Wallet and database files
+*.wallet
+*.db
+
+# Dev/test data directories
+/qellox-devnet/
+/qellox-test-pc/
+
+# Environment files
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+
+# Dataset cache
+dataset-cache/

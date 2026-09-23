@@ -1,0 +1,46 @@
+{
+  "baseline": "BASELINE-V1",
+  "timestamp": "2026-09-21",
+  "parameters": {
+    "name": "QelloxHashV1-default",
+    "lanes": 32,
+    "registers": 32,
+    "program_length": 112,
+    "execution_passes": 4,
+    "scratchpad_bytes": 49152,
+    "dataset_reads_per_pass": 8,
+    "cross_lane_rounds": 2,
+    "subgroup_size": 8,
+    "dependency_depth": 4
+  },
+  "constants": {
+    "HEADER_BYTES": 80,
+    "MINING_INPUT_BYTES": 88,
+    "DATASET_ITEM_BYTES": 128,
+    "DATASET_PARENTS": 512,
+    "EPOCH_LENGTH": 75000,
+    "CACHE_ROUNDS": 3,
+    "CACHE_ITEM_BYTES": 64,
+    "CACHE_PARENTS": 256,
+    "DATASET_INITIAL_BYTES": 2147483648,
+    "WORK_DIGEST_BYTES": 32,
+    "POW_DIGEST_BYTES": 32
+  },
+  "opcode_weights": {
+    "arithmetic": 25,
+    "bitwise": 20,
+    "rotation": 15,
+    "multiplication": 15,
+    "bit_manipulation": 10,
+    "memory": 12,
+    "cross_lane": 3
+  },
+  "modeled_performance": {
+    "note": "ALL MODELED - NOT HARDWARE VERIFIED",
+    "cpu_kh_s": 5.07,
+    "verification_us": 194.25,
+    "dataset_item_us": 39.10,
+    "cache_generation_s": 0.18,
+    "per_job_bytes": 600
+  }
+}

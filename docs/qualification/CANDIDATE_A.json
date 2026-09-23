@@ -1,0 +1,248 @@
+{
+  "candidate_id": "QELLOXHASH-V1-QUAL-CANDIDATE-A",
+  "version": "1.0.0",
+  "frozen_date": "2026-09-21",
+  "description": "Frozen qualification candidate for hardware testing. This is the exact algorithm specification that must be validated on physical hardware before any consensus activation consideration.",
+  
+  "lane_geometry": {
+    "lanes": 32,
+    "subgroup_size": 8,
+    "subgroups_per_candidate": 4,
+    "notes": "32 lanes maps to NVIDIA warp size. 8-lane subgroups compatible with both AMD (64-wide wavefronts) and NVIDIA (32-wide warps)."
+  },
+
+  "register_file": {
+    "registers_per_lane": 32,
+    "register_bits": 32,
+    "total_registers": 1024,
+    "total_bytes": 4096,
+    "arithmetic_semantics": "wrapping_u32",
+    "notes": "All register operations use explicit wraparound arithmetic on unsigned 32-bit integers."
+  },
+
+  "program": {
+    "instruction_count": 112,
+    "instruction_encoding": {
+      "bits": 32,
+      "layout": {
+        "opcode": {"bits": "7:0", "description": "Operation code (0x01-0x17)"},
+        "dst": {"bits": "12:8", "description": "Destination register (0-31)"},
+        "src_a": {"bits": "17:13", "description": "Source A register (0-31)"},
+        "src_b": {"bits": "22:18", "description": "Source B register (0-31)"},
+        "imm5": {"bits": "27:23", "description": "5-bit immediate or sub-opcode"},
+        "flags": {"bits": "31:28", "description": "Operation flags"}
+      }
+    },
+    "generation": {
+      "method": "deterministic_from_seed",
+      "domain_separator": "QelloxHashV1/program-expand/v1",
+      "keystream": "SHA-256 repeated expansion",
+      "guaranteed_ops": ["dataset_load", "cross_lane_shuffle", "scratch_load", "scratch_store"],
+      "guaranteed_positions": "Injected at fixed positions (pass boundaries)"
+    }
+  },
+
+  "opcode_set": {
+    "arithmetic": {
+      "ADD32": {"opcode": "0x01", "semantics": "dst = src_a.wrapping_add(src_b)"},
+      "SUB32": {"opcode": "0x02", "semantics": "dst = src_a.wrapping_sub(src_b)"},
+      "ADD_IMM32": {"opcode": "0x14", "semantics": "dst = src_a.wrapping_add(imm5)"},
+      "MADD32": {"opcode": "0x0B", "semantics": "dst = src_a.wrapping_add(src_b.wrapping_mul(imm5))"}
+    },
+    "bitwise": {
+      "XOR32": {"opcode": "0x03", "semantics": "dst = src_a ^ src_b"},
+      "AND32": {"opcode": "0x04", "semantics": "dst = src_a & src_b"},
+      "OR32": {"opcode": "0x05", "semantics": "dst = src_a | src_b"},
+      "NOT32": {"opcode": "0x06", "semantics": "dst = !src_a"},
+      "XOR_IMM32": {"opcode": "0x15", "semantics": "dst = src_a ^ imm5"}
+    },
+    "rotation": {
+      "ROTL32": {"opcode": "0x07", "semantics": "dst = src_a.rotate_left(src_b & 31)"},
+      "ROTR32": {"opcode": "0x08", "semantics": "dst = src_a.rotate_right(src_b & 31)"},
+      "ROTL_IMM32": {"opcode": "0x16", "semantics": "dst = src_a.rotate_left(imm5 & 31)"}
+    },
+    "multiplication": {
+      "MUL_LO32": {"opcode": "0x09", "semantics": "dst = (src_a * src_b) as u32"},
+      "MUL_HI32": {"opcode": "0x0A", "semantics": "dst = ((src_a as u64 * src_b as u64) >> 32) as u32"},
+      "MUL_ROT32": {"opcode": "0x17", "semantics": "dst = (src_a.wrapping_mul(src_b)).rotate_left(imm5 & 31)"}
+    },
+    "bit_manipulation": {
+      "POPCNT32": {"opcode": "0x0C", "semantics": "dst = src_a.count_ones()"},
+      "CLZ32": {"opcode": "0x0D", "semantics": "dst = src_a.leading_zeros()"},
+      "BITSELECT": {"opcode": "0x0E", "semantics": "dst = (src_a & c) | (src_b & !c), c = register[imm5]"},
+      "BYTE_PERMUTE": {"opcode": "0x0F", "semantics": "dst = byte_permute(src_a, src_b)"}
+    },
+    "memory": {
+      "SCRATCH_LOAD": {"opcode": "0x10", "semantics": "dst = scratchpad[(src_a + imm5) % words]"},
+      "SCRATCH_STORE": {"opcode": "0x11", "semantics": "scratchpad[(src_b + imm5) % words] ^= src_a"},
+      "DATASET_LOAD": {"opcode": "0x12", "semantics": "dst = src_a + src_b + imm5 (index computation)"}
+    },
+    "cross_lane": {
+      "LANE_SHUFFLE": {"opcode": "0x13", "semantics": "dst = registers[(lane + 1 + imm5) % 32][src_a]"}
+    }
+  },
+
+  "opcode_weights": {
+    "arithmetic": 25,
+    "bitwise": 20,
+    "rotation": 15,
+    "multiplication": 15,
+    "bit_manipulation": 10,
+    "memory": 12,
+    "cross_lane": 3,
+    "total": 100,
+    "notes": "Weights used by program generator for balanced opcode distribution."
+  },
+
+  "execution": {
+    "passes": 4,
+    "pass_structure": [
+      "1. Execute all 112 instructions across all 32 lanes",
+      "2. Cross-lane mixing (shuffle + butterfly)",
+      "3. Dataset reads with dependency chains"
+    ]
+  },
+
+  "scratchpad": {
+    "bytes": 49152,
+    "words": 12288,
+    "word_bits": 32,
+    "notes": "48 KiB shared across all lanes. Fits within NVIDIA shared memory (100-164 KiB/SM) and AMD LDS (64 KiB/CU)."
+  },
+
+  "dataset": {
+    "initial_bytes": 2147483648,
+    "initial_gib": 2.0,
+    "item_bytes": 128,
+    "item_words": 32,
+    "initial_items": 16777216,
+    "parent_items": 512,
+    "growth_per_epoch_bytes": 8388608,
+    "notes": "~2 GiB initial dataset. Resident in GPU VRAM during mining. Verifiers use 16 MiB light cache only."
+  },
+
+  "light_cache": {
+    "initial_bytes": 16777216,
+    "initial_mib": 16.0,
+    "item_bytes": 64,
+    "item_words": 16,
+    "parent_items": 256,
+    "mixing_rounds": 3,
+    "notes": "~16 MiB light cache. Used by verifiers to derive dataset items on demand."
+  },
+
+  "dependent_reads": {
+    "reads_per_pass": 8,
+    "total_reads": 32,
+    "chain_mechanism": "Each read address depends on the previous read result",
+    "address_derivation": "FNV-1a hash of chain_value",
+    "mixing": "Results mixed into registers via rotate-add",
+    "write_back": "Results XORed back into scratchpad",
+    "notes": "8 serial dependent reads per pass × 4 passes = 32 total. Limits memory-level parallelism. HBM bandwidth advantage largely negated."
+  },
+
+  "cross_lane_mixing": {
+    "rounds_per_pass": 2,
+    "total_rounds": 8,
+    "mechanism": [
+      "Phase 1: Gather peer register values via shuffle map",
+      "Phase 2: XOR-rotate mix with peer values",
+      "Phase 3: Logarithmic butterfly within 8-lane subgroups"
+    ],
+    "butterfly_operations": {
+      "add_rotate_left": 7,
+      "sub_rotate_left": 13
+    },
+    "shuffle_map": "Generated from seed, no self-loops"
+  },
+
+  "seed_derivation": {
+    "mining_seed": {
+      "domain": "QelloxHashV1/seed/v1",
+      "inputs": ["header[80]", "nonce[8]"],
+      "output": "32 bytes (SHA-256)"
+    },
+    "epoch_seed": {
+      "domain": "QelloxHashV1/epoch-seed/v1",
+      "inputs": ["epoch_number[4]"],
+      "output": "32 bytes (SHA-256)"
+    }
+  },
+
+  "execution_flow": {
+    "1_compute_seed": "SHA-256('QelloxHashV1/seed/v1' || header || nonce_le)",
+    "2_generate_program": "Deterministic 112-instruction program from seed",
+    "3_init_registers": "SHA-256 per register (1024 hashes)",
+    "4_init_scratchpad": "SHA-256 per 8-word block (1536 hashes)",
+    "5_execute_passes": "4 passes: instructions → cross-lane → dataset reads",
+    "6_reduce_state": "SHA-256 of all registers + scratchpad hash",
+    "7_final_digest": "SHA-256('Qellox/QelloxHashV1' || work_digest)"
+  },
+
+  "finalization": {
+    "work_digest": {
+      "domain": "QelloxHashV1/reduce/v1",
+      "registers_included": "all 1024 (32 lanes × 32 regs)",
+      "scratchpad_included": "first 256 words (1024 bytes)",
+      "scratchpad_domain": "QelloxHashV1/scratchpad/v1",
+      "output": "32 bytes"
+    },
+    "pow_digest": {
+      "domain": "Qellox/QelloxHashV1",
+      "input": "work_digest",
+      "output": "32 bytes",
+      "hash_function": "SHA-256"
+    }
+  },
+
+  "endian_rules": {
+    "registers": "native (u32 operations)",
+    "scratchpad": "native (u32 array)",
+    "sha256_input": "big-endian (SHA-256 standard)",
+    "nonce": "little-endian (8 bytes)",
+    "epoch_number": "little-endian (4 bytes)",
+    "instruction_word": "little-endian (4 bytes)",
+    "pow_digest_comparison": "big-endian (256-bit integer)"
+  },
+
+  "epoch_rules": {
+    "epoch_length": 75000,
+    "epoch_from_height": "floor(height / 75000)",
+    "dataset_regeneration": "New dataset per epoch",
+    "cache_regeneration": "New light cache per epoch",
+    "algorithm_change": "No algorithm change between epochs"
+  },
+
+  "verification_rules": {
+    "light_verification": true,
+    "full_dataset_required": false,
+    "light_cache_required": true,
+    "scratchpad_per_verification": "48 KiB",
+    "estimated_verification_us": 194,
+    "notes": "Nodes only need 16 MiB light cache. Full 2 GiB dataset NOT required for verification."
+  },
+
+  "domain_separators": {
+    "seed": "QelloxHashV1/seed/v1",
+    "epoch_seed": "QelloxHashV1/epoch-seed/v1",
+    "program_expand": "QelloxHashV1/program-expand/v1",
+    "register_init": "QelloxHashV1/reg-init/v1",
+    "scratchpad_init": "QelloxHashV1/scratch-init/v1",
+    "cache_item": "QelloxHashV1/cache-item/v1",
+    "cache_mix": "QelloxHashV1/cache-mix/v1",
+    "reduce": "QelloxHashV1/reduce/v1",
+    "scratchpad_hash": "QelloxHashV1/scratchpad/v1",
+    "final": "Qellox/QelloxHashV1"
+  },
+
+  "safety_properties": {
+    "deterministic": true,
+    "bounded_execution": true,
+    "no_undefined_behavior": true,
+    "no_hardware_ids": true,
+    "no_vendor_detection": true,
+    "no_floating_point": true,
+    "wraparound_arithmetic": true,
+    "cross_platform": true
+  }
+}

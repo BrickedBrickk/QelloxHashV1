@@ -1,0 +1,17 @@
+[package]
+name = "qelloxhash-v1-gpu"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+wgpu = { version = "0.20", features = ["naga-ir"] }
+bytemuck = { version = "1.16", features = ["derive"] }
+sha2 = "=0.10.9"
+pollster = "0.3"
+log = "0.4"
+env_logger = "0.11"
+
+[lints.rust]
+unsafe_code = "forbid"

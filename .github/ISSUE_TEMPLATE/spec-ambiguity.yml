@@ -1,0 +1,54 @@
+name: Spec Ambiguity
+description: Report an ambiguity or inconsistency in the algorithm specification
+title: "[Spec] "
+labels: ["spec", "ambiguity"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Report an ambiguity or inconsistency in the QelloxHashV1 specification ([docs/SPEC.md](docs/SPEC.md)).
+        The algorithm semantics are frozen -- ambiguities must be resolved by clarifying the spec, not by changing behavior.
+
+  - type: input
+    id: section
+    attributes:
+      label: Spec Section
+      description: "Which section of the specification is ambiguous?"
+      placeholder: "Section 14.1 Per-Pass Dataset Reads"
+    validations:
+      required: true
+
+  - type: textarea
+    id: interpretation-a
+    attributes:
+      label: Interpretation A
+      description: "One possible reading of the spec"
+    validations:
+      required: true
+
+  - type: textarea
+    id: interpretation-b
+    attributes:
+      label: Interpretation B
+      description: "Another possible reading of the spec"
+    validations:
+      required: true
+
+  - type: textarea
+    id: affected
+    attributes:
+      label: Affected Vector / Implementation
+      description: "Which test vector or implementation is affected?"
+      placeholder: |
+        vectors/test_vectors.json: zero_header_zero_nonce
+        reference/src/vectors.rs: test_full_hash_deterministic
+    validations:
+      required: true
+
+  - type: textarea
+    id: resolution
+    attributes:
+      label: Suggested Resolution
+      description: "How should the spec be clarified?"
+    validations:
+      required: false

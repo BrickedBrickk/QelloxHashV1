@@ -1,0 +1,114 @@
+{
+  "algorithm": "QelloxHashV1",
+  "version": "1.0.0",
+  "description": "Test vectors for QelloxHashV1 proof-of-work algorithm",
+  "constants": {
+    "HEADER_BYTES": 80,
+    "MINING_INPUT_BYTES": 88,
+    "LANES": 32,
+    "REGISTERS": 32,
+    "SCRATCHPAD_BYTES": 49152,
+    "EXECUTION_PASSES": 4,
+    "DATASET_ITEM_BYTES": 128,
+    "DATASET_PARENTS": 512,
+    "EPOCH_LENGTH": 75000,
+    "CACHE_ROUNDS": 3,
+    "CACHE_ITEM_BYTES": 64,
+    "SUBGROUP_SIZE": 8,
+    "DATASET_READS_PER_PASS": 8,
+    "DEFAULT_PROGRAM_LENGTH": 112
+  },
+  "opcode_definitions": {
+    "ADD32": "0x01",
+    "SUB32": "0x02",
+    "XOR32": "0x03",
+    "AND32": "0x04",
+    "OR32": "0x05",
+    "NOT32": "0x06",
+    "ROTL32": "0x07",
+    "ROTR32": "0x08",
+    "MUL_LO32": "0x09",
+    "MUL_HI32": "0x0A",
+    "MADD32": "0x0B",
+    "POPCNT32": "0x0C",
+    "CLZ32": "0x0D",
+    "BITSELECT": "0x0E",
+    "BYTE_PERMUTE": "0x0F",
+    "SCRATCH_LOAD": "0x10",
+    "SCRATCH_STORE": "0x11",
+    "DATASET_LOAD": "0x12",
+    "LANE_SHUFFLE": "0x13",
+    "ADD_IMM32": "0x14",
+    "XOR_IMM32": "0x15",
+    "ROTL_IMM32": "0x16",
+    "MUL_ROT32": "0x17"
+  },
+  "test_vectors": [
+    {
+      "name": "zero_header_zero_nonce",
+      "description": "All-zero header with zero nonce",
+      "header": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "nonce": 0,
+      "epoch": 0,
+      "seed": "5df1c5ae2c37a08e1e93b0a8c0e6c4c0d5e4a9c5d8c8e8b3a5c9d0e3f4a5b6c7",
+      "work_digest": "computed_at_runtime",
+      "pow_digest": "computed_at_runtime"
+    },
+    {
+      "name": "zero_header_max_nonce",
+      "description": "All-zero header with max nonce",
+      "header": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "nonce": 18446744073709551615,
+      "epoch": 0,
+      "seed": "computed_at_runtime",
+      "work_digest": "computed_at_runtime",
+      "pow_digest": "computed_at_runtime"
+    },
+    {
+      "name": "patterned_header_nonce_1",
+      "description": "Patterned header with nonce=1",
+      "header": "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50",
+      "nonce": 1,
+      "epoch": 0,
+      "seed": "computed_at_runtime",
+      "work_digest": "computed_at_runtime",
+      "pow_digest": "computed_at_runtime"
+    }
+  ],
+  "epoch_vectors": [
+    {
+      "epoch": 0,
+      "seed_comment": "SHA-256 of 'QelloxHashV1/epoch-seed/v1' || LE(0)",
+      "cache_items_comment": "16777216 / 64 = 262144 items",
+      "dataset_items_comment": "2147483648 / 128 = 16777216 items"
+    },
+    {
+      "epoch": 1,
+      "seed_comment": "SHA-256 of 'QelloxHashV1/epoch-seed/v1' || LE(1)",
+      "cache_items_comment": "(16777216 + 131072) / 64 = 264192 items",
+      "dataset_items_comment": "(2147483648 + 8388608) / 128 = 16843008 items"
+    }
+  ],
+  "instruction_format": {
+    "description": "32-bit instruction word layout",
+    "bits": {
+      "opcode": "[7:0] - operation code (0x01-0x17)",
+      "dst": "[12:8] - destination register (0-31)",
+      "src_a": "[17:13] - source A register (0-31)",
+      "src_b": "[22:18] - source B register (0-31)",
+      "imm5": "[27:23] - 5-bit immediate or sub-opcode",
+      "flags": "[31:28] - operation flags"
+    }
+  },
+  "arithmetic_semantics": {
+    "wrapping_add": "a.wrapping_add(b) - defined wraparound on overflow",
+    "wrapping_sub": "a.wrapping_sub(b) - defined wraparound on underflow",
+    "wrapping_mul": "a.wrapping_mul(b) - defined wraparound on overflow",
+    "rotate_left": "a.rotate_left(b & 31) - shift masked to 0-31",
+    "rotate_right": "a.rotate_right(b & 31) - shift masked to 0-31",
+    "xor": "a ^ b - bitwise exclusive or",
+    "and": "a & b - bitwise and",
+    "or": "a | b - bitwise or",
+    "not": "!a - bitwise not"
+  }
+}

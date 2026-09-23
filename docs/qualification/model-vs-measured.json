@@ -1,0 +1,105 @@
+{
+  "description": "Model vs Measured tracking. Compares Phase 3 simulator predictions with actual hardware measurements.",
+  "candidate_hash": "cec81499936e7dea1087805ceafe57d21b0b21e085bb61d6d79b35e3bfdecec5",
+  "baseline_architecture": "RTX 3060",
+  "note": "All measured values must come from physical hardware testing. Do NOT fill in measured values from simulation.",
+  
+  "architectures": {
+    "RTX 3060": {
+      "class": "gaming_nvidia",
+      "modeled_normalized_throughput": 1.00,
+      "measured_normalized_throughput": null,
+      "measured_hash_rate_hs": null,
+      "error_percentage": null,
+      "notes": "Awaiting physical hardware"
+    },
+    "RTX 3070": {
+      "class": "gaming_nvidia",
+      "modeled_normalized_throughput": 1.59,
+      "measured_normalized_throughput": null,
+      "measured_hash_rate_hs": null,
+      "error_percentage": null,
+      "notes": "Awaiting physical hardware"
+    },
+    "RTX 4070": {
+      "class": "gaming_nvidia",
+      "modeled_normalized_throughput": 2.29,
+      "measured_normalized_throughput": null,
+      "measured_hash_rate_hs": null,
+      "error_percentage": null,
+      "notes": "Awaiting physical hardware"
+    },
+    "RTX 5070": {
+      "class": "gaming_nvidia",
+      "modeled_normalized_throughput": 2.42,
+      "measured_normalized_throughput": null,
+      "measured_hash_rate_hs": null,
+      "error_percentage": null,
+      "notes": "Awaiting physical hardware"
+    },
+    "RX 6700 XT": {
+      "class": "gaming_amd",
+      "modeled_normalized_throughput": 1.72,
+      "measured_normalized_throughput": null,
+      "measured_hash_rate_hs": null,
+      "error_percentage": null,
+      "notes": "Awaiting physical hardware"
+    },
+    "RX 7700 XT": {
+      "class": "gaming_amd",
+      "modeled_normalized_throughput": 2.29,
+      "measured_normalized_throughput": null,
+      "measured_hash_rate_hs": null,
+      "error_percentage": null,
+      "notes": "Awaiting physical hardware"
+    },
+    "RX 7800 XT": {
+      "class": "gaming_amd",
+      "modeled_normalized_throughput": 2.43,
+      "measured_normalized_throughput": null,
+      "measured_hash_rate_hs": null,
+      "error_percentage": null,
+      "notes": "Awaiting physical hardware"
+    },
+    "CMP 170HX": {
+      "class": "compute_nvidia",
+      "modeled_normalized_throughput": 2.45,
+      "measured_normalized_throughput": null,
+      "measured_hash_rate_hs": null,
+      "error_percentage": null,
+      "notes": "Awaiting physical hardware. Expected poor hash/$ due to high cost."
+    },
+    "CMP 100-210": {
+      "class": "compute_nvidia",
+      "modeled_normalized_throughput": 1.97,
+      "measured_normalized_throughput": null,
+      "measured_hash_rate_hs": null,
+      "error_percentage": null,
+      "notes": "Awaiting physical hardware"
+    },
+    "BC-160": {
+      "class": "compute_amd",
+      "modeled_normalized_throughput": 0.73,
+      "measured_normalized_throughput": null,
+      "measured_hash_rate_hs": null,
+      "error_percentage": null,
+      "notes": "Awaiting physical hardware"
+    },
+    "Desktop CPU (Zen 4)": {
+      "class": "cpu",
+      "modeled_normalized_throughput": 0.12,
+      "measured_normalized_throughput": null,
+      "measured_hash_rate_hs": null,
+      "error_percentage": null,
+      "notes": "CPU reference implementation. Expected dramatically lower performance."
+    }
+  },
+
+  "model_accuracy": {
+    "description": "Summary of model prediction accuracy once measured data is available",
+    "mean_absolute_error_percent": null,
+    "max_error_percent": null,
+    "model_useful": null,
+    "notes": "No measured data yet"
+  }
+}

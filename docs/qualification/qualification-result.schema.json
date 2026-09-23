@@ -1,0 +1,218 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QelloxHashV1 Qualification Result",
+  "description": "Schema for hardware qualification test results. All performance numbers must be clearly labeled as MEASURED or MODELED.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "candidate_manifest_hash",
+    "implementation_commit",
+    "qualification_status",
+    "timestamp"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "candidate_manifest_hash": {
+      "type": "string",
+      "description": "SHA-256 of the candidate manifest file",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "candidate_id": {
+      "type": "string",
+      "description": "Human-readable candidate identifier"
+    },
+    "implementation_commit": {
+      "type": "string",
+      "description": "Git commit hash of the QelloxHashV1 implementation"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "qualification_status": {
+      "type": "string",
+      "enum": ["ACCEPTED", "REJECTED"],
+      "description": "Overall qualification result"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "description": "Reason for rejection, null if accepted"
+    },
+
+    "system": {
+      "type": "object",
+      "properties": {
+        "os": {"type": "string"},
+        "os_version": {"type": "string"},
+        "driver_version": {"type": "string"},
+        "runtime_backend": {"type": "string", "enum": ["vulkan", "dx12", "metal", "webgpu"]}
+      }
+    },
+
+    "gpu": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string", "description": "GPU name (metadata only, does not affect algorithm)"},
+        "vendor": {"type": "string", "enum": ["nvidia", "amd", "intel", "other"]},
+        "vendor_id": {"type": "integer", "description": "PCI vendor ID (metadata only)"},
+        "device_id": {"type": "integer", "description": "PCI device ID (metadata only)"},
+        "vram_bytes": {"type": "integer"},
+        "pcie_link_width": {"type": "integer", "description": "Detected PCIe link width"},
+        "pcie_link_speed": {"type": "string", "description": "Detected PCIe link speed"}
+      }
+    },
+
+    "candidate_digest_verified": {
+      "type": "boolean",
+      "description": "Whether candidate manifest digest matched expected"
+    },
+
+    "equivalence_test": {
+      "type": "object",
+      "properties": {
+        "pass": {"type": "boolean"},
+        "test_cases": {"type": "integer", "description": "Number of test cases executed"},
+        "mismatches": {"type": "integer"},
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "test_name": {"type": "string"},
+              "nonce": {"type": "integer"},
+              "header_hex": {"type": "string"},
+              "cpu_digest_hex": {"type": "string"},
+              "gpu_digest_hex": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+
+    "dataset_generation": {
+      "type": "object",
+      "properties": {
+        "cache_used": {"type": "boolean"},
+        "generation_time_seconds": {"type": "number"},
+        "integrity_verified": {"type": "boolean"},
+        "cache_path": {"type": "string"}
+      }
+    },
+
+    "benchmark": {
+      "type": "object",
+      "properties": {
+        "warmup_seconds": {"type": "integer"},
+        "measurement_seconds": {"type": "integer"},
+        "total_hashes": {"type": "integer"},
+        "measured_hash_rate_hs": {
+          "type": "number",
+          "description": "ACTUAL MEASURED sustained hash rate"
+        },
+        "min_hash_rate_hs": {"type": "number"},
+        "max_hash_rate_hs": {"type": "number"},
+        "mean_hash_rate_hs": {"type": "number"},
+        "median_hash_rate_hs": {"type": "number"},
+        "stddev_hash_rate_hs": {"type": "number"},
+        "per_second_rates": {
+          "type": "array",
+          "items": {"type": "number"},
+          "description": "Per-second hash rates for analysis"
+        }
+      }
+    },
+
+    "latency": {
+      "type": "object",
+      "properties": {
+        "single_hash_ms": {"type": "number"},
+        "batch_100_ms": {"type": "number"},
+        "batch_1000_ms": {"type": "number"},
+        "p50_ms": {"type": "number"},
+        "p95_ms": {"type": "number"},
+        "p99_ms": {"type": "number"}
+      }
+    },
+
+    "memory": {
+      "type": "object",
+      "properties": {
+        "gpu_allocated_bytes": {"type": "integer"},
+        "gpu_peak_bytes": {"type": "integer"},
+        "host_allocated_bytes": {"type": "integer"},
+        "dataset_bytes": {"type": "integer"}
+      }
+    },
+
+    "traffic": {
+      "type": "object",
+      "properties": {
+        "host_to_device_bytes": {"type": "integer"},
+        "device_to_host_bytes": {"type": "integer"},
+        "bytes_per_hash": {"type": "number"},
+        "pcie_utilization_percent": {"type": "number"}
+      }
+    },
+
+    "errors": {
+      "type": "object",
+      "properties": {
+        "gpu_validation_errors": {"type": "integer"},
+        "digest_mismatches": {"type": "integer"},
+        "invalid_solutions": {"type": "integer"},
+        "dispatch_failures": {"type": "integer"},
+        "device_loss_events": {"type": "integer"}
+      }
+    },
+
+    "stability": {
+      "type": "object",
+      "properties": {
+        "runs_completed": {"type": "integer"},
+        "rate_drift_percent": {"type": "number"},
+        "thermal_throttling_detected": {"type": "boolean"},
+        "stable": {"type": "boolean"}
+      }
+    },
+
+    "power": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": ["external-meter", "gpu-telemetry", "software-estimate", "not-measured"]
+        },
+        "average_watts": {"type": "number"},
+        "peak_watts": {"type": "number"},
+        "efficiency_hs_per_watt": {"type": "number"}
+      }
+    },
+
+    "pcie_test": {
+      "type": "object",
+      "properties": {
+        "mode_description": {"type": "string"},
+        "init_time_seconds": {"type": "number"},
+        "steady_state_hs": {"type": "number"},
+        "vs_x16_percent_difference": {"type": "number"}
+      }
+    },
+
+    "notes": {
+      "type": "string"
+    },
+
+    "labels": {
+      "type": "object",
+      "description": "Labels indicating what is MEASURED vs MODELED",
+      "properties": {
+        "hash_rate": {"type": "string", "enum": ["MEASURED", "MODELED"]},
+        "power": {"type": "string", "enum": ["MEASURED", "MODELED", "NOT_MEASURED"]},
+        "pcie_traffic": {"type": "string", "enum": ["MEASURED", "MODELED"]}
+      }
+    }
+  }
+}

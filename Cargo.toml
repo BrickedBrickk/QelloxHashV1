@@ -1,0 +1,23 @@
+[workspace]
+members = [
+    "reference",
+    "tools/fuzz",
+    "gpu",
+    "bench",
+    "tools/simulator",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.9.0"
+edition = "2021"
+rust-version = "1.81"
+license = "Apache-2.0"
+repository = "https://github.com/Qellox/QelloxHashV1"
+description = "Consumer-GPU PoW designed for equal AMD/NVIDIA performance and resistance to specialized hardware."
+
+[profile.release]
+codegen-units = 1
+lto = "thin"
+panic = "abort"
+strip = "symbols"

@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
+
+jobs:
+  fmt:
+    name: Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt --check
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - run: cargo clippy --workspace -- -D warnings
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust: [stable, "1.81"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+      - run: cargo test --workspace
+
+  vectors:
+    name: Vector Verification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Verify manifest digest
+        run: |
+          EXPECTED="cec81499936e7dea1087805ceafe57d21b0b21e085bb61d6d79b35e3bfdecec5"
+          ACTUAL=$(sha256sum docs/qualification/CANDIDATE_A.json | cut -d' ' -f1)
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "Manifest digest mismatch!"
+            echo "Expected: $EXPECTED"
+            echo "Actual:   $ACTUAL"
+            exit 1
+          fi
+          echo "Manifest digest verified: $ACTUAL"
+
+  self-test:
+    name: Self-Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build bench tool
+        run: cargo build -p qelloxhash-bench --release
+      - name: Run CPU self-test
+        run: cargo run -p qelloxhash-bench --release -- cpu --seconds 5
+
+  no-gpu:
+    name: Software-Only Verification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Verify no GPU dependency for tests
+        run: |
+          cargo test -p qelloxhash-v1-reference --release
+          cargo test -p qelloxhash-v1-fuzz --release
+      - name: Note
+        run: echo "GPU tests require physical hardware and are not run in CI"

@@ -1,0 +1,113 @@
+name: Hardware Qualification
+description: Submit physical hardware qualification results for QelloxHashV1
+title: "[Qualification] "
+labels: ["qualification", "hardware"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Submit hardware qualification results for QelloxHashV1.
+        See [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md) for qualification caveats and the README for acceptance criteria.
+
+  - type: input
+    id: gpu
+    attributes:
+      label: GPU
+      description: "GPU model (e.g., RTX 3060, RX 7700 XT, CMP 170HX)"
+      placeholder: "RTX 3060"
+    validations:
+      required: true
+
+  - type: input
+    id: driver
+    attributes:
+      label: Driver Version
+      description: "GPU driver version"
+      placeholder: "551.86"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: "OS and version"
+      placeholder: "Windows 11 23H2 / Ubuntu 24.04"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: backend
+    attributes:
+      label: Backend
+      description: "wgpu backend used"
+      options:
+        - Vulkan
+        - DX12
+        - Metal
+        - WebGPU
+    validations:
+      required: true
+
+  - type: input
+    id: manifest-hash
+    attributes:
+      label: Manifest Hash
+      description: "SHA-256 of CANDIDATE_A.json used for this run"
+      placeholder: "cec81499936e7dea1087805ceafe57d21b0b21e085bb61d6d79b35e3bfdecec5"
+    validations:
+      required: true
+
+  - type: input
+    id: duration
+    attributes:
+      label: Measurement Duration
+      description: "Duration of the steady-state measurement in seconds"
+      placeholder: "600"
+    validations:
+      required: true
+
+  - type: input
+    id: hash-rate
+    attributes:
+      label: Measured Hash Rate
+      description: "Sustained hash rate in H/s"
+      placeholder: "5000000"
+    validations:
+      required: true
+
+  - type: input
+    id: power
+    attributes:
+      label: Power (if measured)
+      description: "Average board power in watts (leave blank if not measured)"
+      placeholder: "120"
+    validations:
+      required: false
+
+  - type: input
+    id: pcie
+    attributes:
+      label: PCIe Link
+      description: "PCIe link width and speed (e.g., PCIe 3.0 x16)"
+      placeholder: "PCIe 3.0 x16"
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: "Additional observations"
+      placeholder: "Any anomalies, thermal throttling, etc."
+    validations:
+      required: false
+
+  - type: textarea
+    id: attachment
+    attributes:
+      label: Qualification JSON
+      description: "Paste the full qualification result JSON or attach the file"
+      render: json
+    validations:
+      required: true
